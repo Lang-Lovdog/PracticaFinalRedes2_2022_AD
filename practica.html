@@ -14,6 +14,10 @@
       position: relative;
       background: transparent;
     }
+    img{
+      aspect-ratio: 16/9;
+      width: 650px;
+    }
 
     h1,
     h2,
@@ -53,8 +57,7 @@
 
 
   <h2>Parte 1, Configuración de la red 1 (172.16.114.0)</h2>
-  <img src="https://ugtomx-my.sharepoint.com/:i:/g/personal/b_marquezsalazar_ugto_mx/ERrxmXwl8vtPts2K7hgfNqQBQm3ieKUfMjsdi1-FjW9Hmg?e=ns5Yfe">
-
+  <img src="https://github.com/Lang-Lovdog/PracticaFinalRedes2_2022_AD/blob/main/RED_1.png?raw=true">
   <h2>Configuración del Switch</h2>
 
   <div class="codigo">
@@ -120,25 +123,15 @@
     <br><b>SW-A(config-if-range)#</b>exit
  </div>
  <h2>Con esto se ha terminado la configuración del switch y comenzamos con la configuración del enrutador R1</h2>
- <h4>Una obervación necesaria es que la IP de las interfaces están predefinidas en el enrutador<br><br>
+ <h4>Una obervación necesaria es que la IP de las interfaces están predefinidas en el enrutador, sin embargo, siempre es buena práctica
+   revisar lo necesario para evitar cualquier detalle omitido<br><br>
    Se nos pide que se haga una configuración que permita la obtención
    de IPs a través del servicio dhcp, las primeras 9 direcciones IP del bloque de red deben ser excluidas, 
    el primer host útil es para la puerta de enlace.
  </h4>
- <h3>
-   El primer paso a desarrollar es definir las IPs que serán omitidas de la asignación (que no se usarán para
-   asignar a un dispositivo). En este caso, de la X.X.X.1 a la X.X.X.9
-   
-   El comando <u><i>ip dhcp excluded-address</i></u> 
-   recibe como argumento al rango de IPs que deberán ser omitidas por dhcp.
- </h3>
  <div class="codigo">
-   <b>SW-A(config)#</b>ip dhcp excluded-address 172.16.114.1 172.16.114.9
- </div>
- <h3>Póstumo a la configuración del rango de IPs reservado, procedemos a nombrar el bloque de direcciones IP
- a utilizar en las asignaciones. Procedemos a revisar las asignaciones hechas en los puertos</h3>
- <div class="codigo">
-   <b>R1(config)#</b>do show ip interface b
+   Revisamos las configuraciones de red:
+   <br><b>R1(config)#</b>do show ip interface b
    <pre class="salida">
   Interface              IP-Address      OK? Method Status                Protocol 
   GigabitEthernet0/0     unassigned      YES unset  administratively down down 
@@ -148,13 +141,63 @@
    </pre>
  <h5>Observamos que el puerto G0/0 no está configurado y es el conecta al enrutador con el switch de la red 172.16.114.0</h5>
  </div>
+ <h4>Procedemos a configurar el puerto G0/0 con la ip, se nos pide que sea el primer host útil ( 172.16.114.<b><i><u>1</u></i></b> ) </h4>
+ <div class="codigo">
+   <b>R1></b>en
+   <br><b>R1#</b>conf t
+   <pre class="salida">
+     Enter configuration commands, one per line.  End with CNTL/Z.
+   </pre>
+   <br><b>R1(config)#</b>int G0/0
+   <br><b>R1(config-if)#</b>ip address 172.16.114.1 255.255.255.0
+   <br><b>R1(config-if)#</b>no shutdown
+   <pre class="salida">
+   %LINK-5-CHANGED: Interface GigabitEthernet0/0, changed state to up
+
+   %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/0, changed state to up
+   </pre>
+   <br><b>R1(config-if)#</b>exit
+ </div>
+ <h2>Configuración de DHCP en R1</h2>
+ <h3>
+   El primer paso a desarrollar es definir las IPs que serán omitidas de la asignación (que no se usarán para
+   asignar a un dispositivo). En este caso, de la X.X.X.1 a la X.X.X.9
+   <br><br>
+   El comando <u><i>ip dhcp excluded-address</i></u> 
+   recibe como argumento al rango de IPs que deberán ser omitidas por dhcp.
+ </h3>
+ <div class="codigo">
+   <b>R1(config)#</b>ip dhcp excluded-address 172.16.114.1 172.16.114.9
+ </div>
+ <h3>Póstumo a la configuración del rango de IPs reservado, procedemos a nombrar el bloque de direcciones IP
+ a utilizar en las asignaciones. Procedemos a revisar las asignaciones hechas en los puertos</h3>
  <h4><u><i>ip dhcp pool</i></u> es un comando que recibe como argumento al nombre del bloque; es un nombre arbitrario,
    por lo que sólo sirve para identificarlo, mas es decisión propia del que lo asigna.<br>
    Al ingresar el comando en la terminal, nos dará un <i>prompt</i> diferente que indica que podremos empezar a configurar
    el bloque.
  </h4>
  <div class="codigo">
-
+  <b>R1(config)#</b>ip dhcp pool RED_DE_PAQUITO
+  <br><u><b>R1(dhcp-config)#</b></u>
  </div>
+ <h4>Indicamos el bloque de direcciones IP que se distribuirán por dhcp
+ Serán incluídos en el siguiente orden
+ <ul>
+   <li>Subred <u>(172.16.114.0/24)</u></li>
+   <li>Puerta de enlace <u>(primer host útil)</u></li>
+   <li>Servidor DNS <u>(8.8.8.8)</u></li>
+ </ul></h4>
+ <div class="codigo">
+    <b>R1(dhcp-config)#</b>network 172.16.114.0 255.255.255.0
+    <br><b>R1(dhcp-config)#</b>default-router 172.16.114.1
+    <br><b>R1(dhcp-config)#</b>dns-server 8.8.8.8
+    <br><b>R1(dhcp-config)#</b>exit
+ </div>
+
+ <h3>Como siguiente punto, se nos pide configurar OSPF como método de enrutamiento,
+ el cual tendrá un número de proceso A (que en mi caso es 114). Como sólo existe un área,
+ se definirá como 0 el área de trabajo de los enrutadores.</h3>
+
+<h2>La configuración del ROUTER R1 ha terminado, podemos proceder con la configuración de la red en VLAN115 y VLAN116</h2>
 </body>
 </html>
