@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">  <meta http-equiv="X-UA-Compatible" content="IE=edge">  <title></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      background-color: #111;
+    }
+    body {
+      font-family: "Open Sans", sans-serif;
+      color: #040404;
+      position: relative;
+      background: transparent;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-family: "Raleway", serif;
+      margin-bottom: 16px;
+      background-color: #111;
+      color: #ddd;
+    }
+    h1,h2{
+      text-align: center;
+    }
+
+    .codigo {
+      color: darkseagreen;
+      font-family: monospace 8px;
+      max-width: 140em;
+      margin-right: 8rem;
+      align-self: left;
+      text-align: left;
+      margin-bottom: 28px;
+      background-color: #222;
+    }
+    .codigo b{
+      background-color: #222;
+      margin-right: 16px;
+    }
+    .codigo .salida{
+      padding-left: 4em;
+      max-width: 136em;
+      background-size: 140em;
+      background-color: #222;
+    }
+
+  </style>
+</head>
+<body>
+  <h1>Configuración utilizada para la práctica final de redes</h1>
+
+
+  <h2>Configuración del Switch</h2>
+
+  <div class="codigo">
+    <b>SW-A></b>en
+    <br><b>SW-A#</b>conf t
+  </div>
+
+
+  <h3>
+    Aquí se crea la VLAN 114, y se le da nombre
+    Yo decidí nombrarla V114 por comodidad
+  </h3>
+ 
+  <div class="codigo">
+    <b>SW-A(config)#</b>vlan 114
+    <br><b>SW-A(config-vlan)#</b>name V114
+  </div>
+
+
+  <h3> Aquí configuramos los puertos
+    Primero revisamos cuales y cuántos puertos hay
+  </h3>
+  <div class="codigo">
+    <b>SW-A(config)#</b>do show interfaces status
+    <br><div class="salida">
+      Port      Name               Status       Vlan       Duplex  Speed Type<br>
+      Fa0/1                        connected    1          auto    auto  10/100BaseTX<br>
+      Fa0/2                        connected    1          auto    auto  10/100BaseTX<br>
+      Fa0/3                        notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/4                        notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/5                        notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/6                        notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/7                        notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/8                        notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/9                        notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/10                       notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/11                       notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/12                       notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/13                       notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/14                       notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/15                       notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/16                       notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/17                       notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/18                       notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/19                       notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/20                       notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/21                       notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/22                       notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/23                       notconnect   1          auto    auto  10/100BaseTX<br>
+      Fa0/24                       notconnect   1          auto    auto  10/100BaseTX<br>
+      Gig0/1                       notconnect   1          auto    auto  10/100BaseTX<br>
+      Gig0/2                       notconnect   1          auto    auto  10/100BaseTX<br>
+      <br>
+    </div>
+  </div>
+  
+  <h3>Designamos los puertos para la VLAN114 que en este caso
+  corresponden (para fines prácticos) los 24 FastEthernet</h3>
+ <div class="codigo">
+    <b>SW-A(config)#</b>int range fa0/1-24
+    <br><b>SW-A(config-if-range)#</b>switchport mode access
+    <br><b>SW-A(config-if-range)#</b>switchport access vlan 114
+    <br><b>SW-A(config-if-range)#</b>exit
+ </div>
+ <h2>Con esto se ha terminado la configuración del switch y comenzamos con la configuración del enrutador R1</h2>
+ <h4>Una obervación necesaria es que la IP de las interfaces están predefinidas en el enrutador<br><br>
+   Se nos pide que se haga una configuración que permita la obtención
+   de IPs con a través del servicio dhcp, las primeras 9 direcciones IP del bloque de red deben ser excluidas, 
+   el primer host útil es para la puerta de enlace.
+ </h4>
+
+ <div class="codigo">
+ </div>
+</body>
+</html>
